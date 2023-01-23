@@ -12,10 +12,10 @@ def create_users_table():
     sql = """
         DROP TABLE IF EXISTS users;
         CREATE TABLE IF NOT EXISTS users(
-            user_id = INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             full_name TEXT,
             phone_number TEXT,
-            telegram_id = BIGINT NOT NULL UNIQUE
+            telegram_id BIGINT NOT NULL UNIQUE
         );
     """
 
