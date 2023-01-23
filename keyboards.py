@@ -28,4 +28,12 @@ def show_lang_menu():
     mark_up.add(*buttons)
     return mark_up
 
+def contact_button():
+    mark_up = ReplyKeyboardMarkup(resize_keyboard=True)
+
+    mark_up.row(
+        KeyboardButton(text='Отправить контакт', request_contact=True)
+    )
+    return mark_up
+
 

@@ -1,11 +1,13 @@
 from telebot import TeleBot
 from telebot.types import Message
 import keyboards as kb
+from googletrans import Translator, LANGCODES
+
+translator = Translator()
 
 BOT_TOKEN = '5594403804:AAEQRAisGkTGM5IebvVvlT794xCCYqCZMC8'
 
 bot = TeleBot(token=BOT_TOKEN)
-git = g
 
 
 # -------------------------------------------------------------------------
@@ -31,10 +33,24 @@ def for_back(message: Message):
 @bot.message_handler(func=lambda msg: msg.text == 'Регистрация')
 def for_registration_button(message: Message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, 'Действие регистрация запущена')
+    bot.send_message(chat_id, 'Напишите Ф.И.О')
+    bot.register_next_step_handler(message, get_full_name)
 
+
+def get_full_name(message: Message):
+    chat_id = message.chat.id
+    full_name = message.text.title()
+    bot.send_message(chat_id, "Отправьте ваш контакт", reply_markup=kb.contact_button())
+    bot.register_next_step_handler(message, register_user, full_name)
+
+
+def register_user(message: Message, full_name: str):
+    chat_id = message.chat.id
+    print(message.contact.phone_number, full_name)
+    bot.send_message(chat_id, "Регистрация прошла успешно", reply_markup=kb.show_start_menu())
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 @bot.message_handler(func=lambda msg: msg.text == 'Перевод')
 def for_translate_button(message: Message):
@@ -57,8 +73,18 @@ def get_lang_for_translate(message: Message, lang_from: str):
 
 
 def translate_message(message: Message, lang_from: str, lang_for: str):
-    print(f'Слово {message.text}, с {lang_from} на {lang_for}')
+    chat_id = message.chat.id
+    lang_code_from = LANGCODES[lang_from]
+    lang_code_for = LANGCODES[lang_for]
 
+    translated_text = translator.translate(message.text, dest=lang_code_for, src=lang_code_from).text
+    bot.send_message(chat_id, f"""
+Переведено с : {lang_from.title()}
+Переведено на : {lang_for.title()}
+Оригинал : {message.text}
+Перевод : {translated_text}
+""", reply_markup=kb.show_start_menu())
+    # return translated_text
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,6 +93,7 @@ def translate_message(message: Message, lang_from: str, lang_for: str):
 def for_history_translate_button(message: Message):
     chat_id = message.chat.id
     bot.send_message(chat_id, 'Действие история перевода запущена')
+    # translated_text = translate_message()
 
 
 @bot.message_handler(func=lambda msg: msg.text == 'Назад')
